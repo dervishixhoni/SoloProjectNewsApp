@@ -1,0 +1,1 @@
+insert into interests (key_word, user_id) values ('google', 1)
