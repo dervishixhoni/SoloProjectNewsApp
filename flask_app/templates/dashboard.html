@@ -110,7 +110,7 @@
 
             const buttons = document.querySelectorAll(".btn.btn-outline-primary.mx-1.rounded-pill");
 
-            for (const button of buttons) {
+            buttons.forEach(button => {
                 button.addEventListener('click', () => {
                     // Enable the clicked button
                     button.classList.add('active');
@@ -123,13 +123,8 @@
                             otherButton.classList.add('bg-light');
                         }
                     });
-
-                    // If no buttons were active before the clicked button was clicked, remove the `bg-light` class from all buttons
-                    if (!buttons.some(button => button.classList.contains('active'))) {
-                        buttons.forEach(button => button.classList.remove('bg-light'));
-                    }
                 });
-            }
+            });
             query = e.innerText
         }
 
