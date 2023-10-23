@@ -4,6 +4,7 @@ import os
 import random
 import re
 import smtplib
+from urllib import response
 from flask_app import app
 from flask_app.models.user import User
 from flask_app.models.interest import Interest
@@ -261,8 +262,9 @@ def dashboard():
     userinterests= Interest.get_all_User_Interest(data)
     for topic in userinterests:
         keywords.append(topic.key_word)
-        if newsapi.get_top_headlines(q=topic.key_word)["articles"]:
-            for i in newsapi.get_top_headlines(q=topic.key_word)["articles"]:
+        response = newsapi.get_top_headlines(q=topic.key_word)["articles"]
+        if response:
+            for i in response:
                 articles.append(i)
     while len(articles)<15:
         i=0
