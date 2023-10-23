@@ -4,7 +4,8 @@ import os
 import random
 import re
 import smtplib
-from urllib import response
+from urllib.request import urlopen
+import json
 from flask_app import app
 from flask_app.models.user import User
 from flask_app.models.interest import Interest
@@ -15,8 +16,9 @@ from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt(app)
 from werkzeug.utils import secure_filename
-from .env import ADMINEMAIL, ALLOWED_EXTENSIONS, API_KEY, PASSWORD,UPLOAD_FOLDER
-app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
+from .env import ADMINEMAIL, ALLOWED_EXTENSIONS, API_KEY, PASSWORD, UPLOAD_FOLDER
+
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 from newsapi import NewsApiClient
 
 newsapi = NewsApiClient(api_key=API_KEY)
@@ -60,7 +62,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/h")    
+@app.route("/h")
 def home():
     return render_template("homepage.html")
 
@@ -130,7 +132,8 @@ def register():
     session["user_id"] = user["id"]
     return jsonify({"valid": True, "path": "/verify/email"})
 
-@app.route('/getstarted')
+
+@app.route("/getstarted")
 def getstarted():
     if "user_id" not in session:
         return redirect("/")
@@ -139,10 +142,10 @@ def getstarted():
     if user["isVerified"] == 0:
         return redirect("/verify/email")
     if len(Interest.get_all_User_Interest(data)) > 0:
-        return redirect('/dashboard')
-    return render_template('choosePreferences.html', loggedUser=User.get_user_by_id(session['user_id']))
-
-
+        return redirect("/dashboard")
+    return render_template(
+        "choosePreferences.html", loggedUser=User.get_user_by_id(session["user_id"])
+    )
 
 
 @app.route("/login", methods=["POST"])
@@ -258,21 +261,23 @@ def dashboard():
     if loggedUser["isVerified"] == 0:
         return redirect("/verify/email")
     articles = []
-    keywords= []
-    userinterests= Interest.get_all_User_Interest(data)
+    keywords = []
+    userinterests = Interest.get_all_User_Interest(data)
     qu = ""
     for i in range(len(userinterests)):
         keywords.append(userinterests[i].key_word)
-        if i != len(userinterests)-1:
-            qu+=f"{userinterests[i].key_word}+OR+"
+        if i != len(userinterests) - 1:
+            qu += f"{userinterests[i].key_word}+OR+"
         else:
-            qu+=userinterests[i].key_word
-    print(qu)
-    response = newsapi.get_everything(q=qu,page_size=20,language="en")["articles"]
-    if response:
-        for i in response:
+            qu += userinterests[i].key_word
+    url = f"https://newsapi.org/v2/everything?q={qu}&language=en&apiKey=bf1cb8dc1df74505a310b9dc5301942e"
+    response = urlopen(url)
+    data = json.loads(response.read())['articles']
+    # newsapi.get_everything(q=qu, language="en")["articles"]
+    if data:
+        for i in data:
             articles.append(i)
-    savedArticles= []
+    savedArticles = []
     for a in Article.get_all_User_Articles(data):
         savedArticles.append(a.url)
     return render_template(
@@ -280,7 +285,7 @@ def dashboard():
         articles=articles,
         loggedUser=loggedUser,
         savedArticles=savedArticles,
-        keywords=keywords
+        keywords=keywords,
     )
 
 
@@ -292,7 +297,7 @@ def logout():
 
 @app.route("/profile/<int:user_id>")
 def show_profile(user_id):
-    if "user_id" not in session or user_id != session['user_id'] :
+    if "user_id" not in session or user_id != session["user_id"]:
         return redirect("/")
     data = {
         "user_id": session["user_id"],
@@ -357,11 +362,11 @@ def editPass():
     if not bcrypt.check_password_hash(
         User.get_user_by_id(data)["password"], request.form["oldpsw"]
     ):
-        errors['oldpsw'] = "Old password is not correct"
-    if len(request.form['newpsw'])<8:
-        errors['newpsw'] = "Password should be more than 2 characters"
+        errors["oldpsw"] = "Old password is not correct"
+    if len(request.form["newpsw"]) < 8:
+        errors["newpsw"] = "Password should be more than 2 characters"
     if request.form["newpsw"] != request.form["confirmnewpsw"]:
-        errors['confirmnewpsw'] = "New passwords should match!"
+        errors["confirmnewpsw"] = "New passwords should match!"
     if errors:
         return jsonify({"valid": False, "errors": errors})
     User.updatePass(data)
@@ -394,4 +399,3 @@ def updatePic():
     User.updateProfilePic(data)
     flash("Update Succesful", "success")
     return redirect(request.referrer)
-
