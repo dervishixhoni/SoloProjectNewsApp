@@ -37,13 +37,13 @@
             Add
         </button>
     </form>
-    (    <div class="card-body row row-cols-3 g-2">
-            {% for topic in topics %}
-            <button class="rounded-pill btn-outline-primary" value="{{topic.id}}" data-bs-toggle="button">
-                {{topic.key_word}}
-            </button>
-            {% endfor %}
-        </div>
+    <div class="card-body row row-cols-3 g-2">
+        {% for topic in topics %}
+        <button class="rounded-pill btn-outline-primary" value="{{topic.id}}" data-bs-toggle="button">
+            {{topic.key_word}}
+        </button>
+        {% endfor %}
+    </div>
     <div class="card-footer text-body-secondary">
         <button type="button" class="btn btn-danger" onclick="remove()">Delete</button>
     </div>
