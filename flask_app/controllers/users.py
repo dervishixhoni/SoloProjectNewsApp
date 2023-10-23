@@ -260,17 +260,18 @@ def dashboard():
     articles = []
     keywords= []
     userinterests= Interest.get_all_User_Interest(data)
-    for topic in userinterests:
-        keywords.append(topic.key_word)
-        response = newsapi.get_top_headlines(q=topic.key_word)["articles"]
-        if response:
-            for i in response:
-                articles.append(i)
-    while len(articles)<15:
-        i=0
-        for topic in userinterests: 
-            articles.append(newsapi.get_everything(q=topic.key_word)["articles"][i])
-            i+=1
+    qu = ""
+    for i in range(len(userinterests)):
+        keywords.append(userinterests[i].key_word)
+        if i != len(userinterests)-1:
+            qu+=f"{userinterests[i].key_word}+OR+"
+        else:
+            qu+=userinterests[i].key_word
+    print(qu)
+    response = newsapi.get_everything(q=qu,page_size=20,language="en")["articles"]
+    if response:
+        for i in response:
+            articles.append(i)
     savedArticles= []
     for a in Article.get_all_User_Articles(data):
         savedArticles.append(a.url)
