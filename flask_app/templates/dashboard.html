@@ -100,11 +100,17 @@
     if (document.getElementById('flashes').innerText != '') {
         flashToastNotification(document.getElementById('flashes').innerText)
     }
-
+    var input = document.getElementById('searchbar')
+    input.addEventListener("keydown",function(e){
+        if (e.keyCode === 13) {
+            getNews('search')
+        }
+    })
     async function getNews(e) {
         const buttons = document.querySelectorAll(".btn.btn-outline-primary.mx-1.rounded-pill");
         if (e == 'search') {
             query = document.getElementById('searchbar').value;
+            document.getElementById('searchbar').value=''
         }
         else {
 
