@@ -272,20 +272,19 @@ def dashboard():
             qu += userinterests[i].key_word
     url = f"https://newsapi.org/v2/everything?q={qu}&language=en&apiKey=bf1cb8dc1df74505a310b9dc5301942e"
     response = urlopen(url)
-    data = json.loads(response.read())['articles']
-    # newsapi.get_everything(q=qu, language="en")["articles"]
-    if data:
-        for i in data:
-            articles.append(i)
+    articles = json.loads(response.read())['articles']
     savedArticles = []
+    ids = []
     for a in Article.get_all_User_Articles(data):
         savedArticles.append(a.url)
+        ids.append(a.id)
     return render_template(
         "dashboard.html",
         articles=articles,
         loggedUser=loggedUser,
         savedArticles=savedArticles,
         keywords=keywords,
+        savedArticlesids=ids
     )
 
 

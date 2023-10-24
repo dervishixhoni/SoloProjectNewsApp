@@ -1,6 +1,5 @@
 
 import array
-from crypt import methods
 from email import errors
 from flask import jsonify, render_template, redirect, session, request, flash
 from flask_app import app
@@ -25,15 +24,28 @@ def save():
     return redirect(request.referrer)
 
 @app.route('/unsaveArticle',methods=['POST'])
+def unsavedash():
+    if 'user_id' not in session:
+        return redirect('/')
+    data = {
+        'title':request.form['title'],
+        'url':request.form['url'],
+        'user_id': session['user_id']
+    }
+    Article.unsave(data)
+    flash("Artcile Unsaved", 'articleunsaved')
+    return redirect(request.referrer)
+
+@app.route('/unsaveArticleprof',methods=['POST'])
 def unsave():
     if 'user_id' not in session:
         return redirect('/')
     data = {
         'id': request.form['id']
     }
-    Article.unsave(data)
+    Article.unsave_with_id(data)
     flash("Artcile Unsaved", 'articleunsaved')
-    return redirect("/profile/<session['user_id']>")
+    return redirect(f"/profile/{session['user_id']}")
 
 @app.route('/deleteInterest',methods=['POST'])
 def delete():

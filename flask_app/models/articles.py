@@ -18,6 +18,11 @@ class Article:
     
     @classmethod
     def unsave(cls,data):
+        query = "delete from articles where url = %(url)s and user_id = %(user_id)s"
+        return connectToMySQL(cls.db_name).query_db(query,data)
+    
+    @classmethod
+    def unsave_with_id(cls,data):
         query = "delete from articles where id = %(id)s;"
         return connectToMySQL(cls.db_name).query_db(query,data)
     

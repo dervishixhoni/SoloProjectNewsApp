@@ -133,10 +133,10 @@
             });
             query = e.innerText
         }
-
-        var url = "https://newsapi.org/v2/everything?q=" + query + "&language=en&apiKey=bf1cb8dc1df74505a310b9dc5301942e";
+        
+        var url = "https://newsapi.org/v2/everything?q="+query+"&language=en&apiKey=bf1cb8dc1df74505a310b9dc5301942e";
         const response = await fetch(url);
-
+        console.log(response);
         // Check the response status code.
         if (response.status !== 200) {
             throw new Error("Failed to query News API: " + response.status);
@@ -147,8 +147,7 @@
 
         // Get the articles.
         const articles = data.articles;
-        const savedArt = {{ savedArticles | d([]) | tojson | safe
-    }}
+        const savedArt = {{ savedArticles | d([]) | tojson | safe}}
 
     // Display the articles on the page.
     const resultsContainer = document.querySelector("#results");
